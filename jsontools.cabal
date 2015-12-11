@@ -2,11 +2,11 @@ name:                jsontools
 version:             0.1.0.0
 synopsis:            TODO Initial project template from stack
 description:         Please see README.md
-homepage:            http://github.com/githubuser/jsontools
+homepage:            http://github.com/Prillan/haskell-jsontools
 license:             BSD3
 license-file:        LICENSE
-author:              Author name here
-maintainer:          example@example.com
+author:              Rasmus Précenth
+maintainer:          prillan91@gmail.com
 copyright:           2010 Author Here
 category:            Acme
 build-type:          Simple
@@ -49,7 +49,7 @@ test-suite spec
                      , jsontools
                      , hspec
                      , QuickCheck
-                     
+
 source-repository head
   type:     git
-  location: https://github.com/githubuser/jsontools
+  location: https://github.com/Prillan/haskell-jsontools
