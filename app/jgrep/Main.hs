@@ -1,15 +1,17 @@
-import Data.Array ((!), Array)
+module Main (main) where
+
+import Options
+
+import Data.Array ((!))
 import Data.Aeson (Value(..))
 import qualified Data.HashMap.Strict as H
 import Data.JsonStream.Parser
 import qualified Data.ByteString.Lazy as B
-import Data.Foldable (forM_)
-import Data.Monoid ((<>))
-import qualified Data.Vector as V
-import Options.Applicative (info, helper, argument, str, metavar, help, execParser, fullDesc, switch, short)
+import Data.Foldable (toList)
+--import Data.Monoid ((<>))
 import Data.Text (unpack)
-import Text.Regex.TDFA
 import System.Console.ANSI
+import Text.Regex.TDFA
 
 type Path = String
 data Match = Match Path String (Int, Int)
@@ -26,40 +28,27 @@ findMatches r = findMatches' "/"
         findMatches' p (Array a) =
           concat $ zipWith (\i e -> findMatches' (p ++ "[" ++ show i ++ "]") e)
                            [0..]
-                           (V.toList a)
+                           (toList a)
         findMatches' p (Object o) =
           concatMap (\(k, e) -> findMatches' (p ++ "." ++ (unpack k)) e) $ H.toList o
         fromString :: String -> String -> [Match]
         fromString p val = map (fromMatchArray p val) matches
           where matches = matchAll r val
 
+printColored c s = setSGR [SetColor Foreground Vivid c] >> putStr s >> setSGR [Reset]
+
 printMatch (Match p v (s, c)) = do
-  setSGR [SetColor Foreground Vivid Magenta]
-  putStr p
-  setSGR [Reset]
+  printColored Magenta p
   putStr ": "
   putStr (take s v)
-  setSGR [SetColor Foreground Vivid Green]
-  putStr (take c $ drop s v)
-  setSGR [Reset]
+  printColored Green (take c $ drop s v)
   putStrLn (drop (s+c) v)
 
 main = do
    stdin <- B.getContents
    let result = parseLazyByteString value stdin :: [Value]
-   o <- execParser opts
+   o <- getOptions
    let matches = concatMap (findMatches (regexArg o)) result
    if verboseArg o then print matches else pure ()
 
    mapM_ printMatch matches
-
-
-
-data Options = Options { regexArg :: Regex, verboseArg :: Bool }
-opts = info ( helper
-              <*> (Options
-                   <$> (argument (makeRegex <$> str)
-                                 (metavar "EXPRESSION" <> help "Expression"))
-                   <*> (switch (short 'v' <> help "Verbose")))
-            )
-       ( fullDesc )
