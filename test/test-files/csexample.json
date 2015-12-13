@@ -1,0 +1,70 @@
+{
+	"provider": {
+		"name": "Counter-Strike: Global Offensive",
+		"appid": 730,
+		"version": 13512,
+		"steamid": "76561198039225449",
+		"timestamp": 1449684054
+	},
+	"player": {
+		"steamid": "76561198039225449",
+		"name": "Hashmush",
+		"activity": "menu"
+	},
+	"previously": {
+		"map": true,
+		"player": {
+			"steamid": "76561198213665501",
+			"name": "1000kg",
+			"team": "T",
+			"state": {
+				"health": 100,
+				"armor": 100,
+				"helmet": true,
+				"flashed": 0,
+				"smoked": 0,
+				"burning": 0,
+				"money": 12300,
+				"round_kills": 0,
+				"round_killhs": 0
+			},
+			"weapons": {
+				"weapon_0": {
+					"name": "weapon_knife_t",
+					"paintkit": "default",
+					"type": "Knife",
+					"state": "holstered"
+				},
+				"weapon_1": {
+					"name": "weapon_glock",
+					"paintkit": "default",
+					"type": "Pistol",
+					"ammo_clip": 20,
+					"ammo_clip_max": 20,
+					"ammo_reserve": 120,
+					"state": "holstered"
+				},
+				"weapon_2": {
+					"name": "weapon_ak47",
+					"paintkit": "cu_ak47_rubber",
+					"type": "Rifle",
+					"ammo_clip": 30,
+					"ammo_clip_max": 30,
+					"ammo_reserve": 90,
+					"state": "active"
+				}
+			},
+			"match_stats": {
+				"kills": 0,
+				"assists": 0,
+				"deaths": 0,
+				"mvps": 0,
+				"score": 0
+			}
+		},
+		"allplayers": true
+	},
+	"auth": {
+		"token": "CCWJu64ZV3JHDT8hZc"
+	}
+}
