@@ -4,7 +4,10 @@ module Data.Json.Path (Path,
                        toText,
                        property,
                        index,
-                       readPath) where
+                       readPath,
+                       GlobPath,
+                       readGlobPath,
+                       matches) where
 
 import JPrelude
 
@@ -43,7 +46,7 @@ matches p gp = any (matches' p') gps
         matches' :: [PathElement] -> [GlobPathElement] -> Bool
         matches' [] [] = True
         matches' [] _  = False
-        matches' _  [] = False
+        matches' _  [] = True
         matches' (x:xs) ((GPE y):ys) = if x == y then matches' xs ys else False
         matches' (x:xs) (GPEStar:ys) = matches' xs ys
 
@@ -92,7 +95,7 @@ readPath = parse path ""
         index' = Index . read <$> between (char '[') (char ']') (many1 digit)
 
 readGlobPath :: String -> Either ParseError GlobPath
-readGlobPath = parse path ""
+readGlobPath = parse (path <* eof) ""
   where
         path = GlobPath <$> (many element)
         element = try (string ".*" *> pure GPEStar)
