@@ -1,0 +1,22 @@
+{
+    "prop_array": [1,2,3,4,5,6],
+    "prop_object": {
+        "a": null,
+        "b": 1,
+        "c": "asdf"
+    },
+    "languages": [
+        {
+            "branch": "germanic",
+            "name": "english"
+        },
+        {
+            "branch": "germanic",
+            "name": "swedish"
+        },
+        {
+            "branch": "slavic",
+            "name": "polish"
+        }
+    ]
+}

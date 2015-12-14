@@ -2,20 +2,17 @@
 import JPrelude
 import Data.Json
 import Data.Json.Path
+import Data.Json.Pretty
 
 import Options
 
 import qualified Data.ByteString.Lazy as L
 import qualified Data.Text as T
 
-project :: GlobPath -> Value -> [(Path, Value)]
-project p v = filter (\(p', v') -> matches p' p) flat
-  where flat = flattenJson v
+--printFlat :: [(Path, Primitive)]
+printFlat = mapM_ (putStrLn.T.unpack.pretty)
 
-pprint :: (Path, Value) -> IO ()
-pprint (p, v) = do
-  putStr . T.unpack $ toText p <> " "
-  L.putStrLn (encode v)
+pprint = L.putStrLn . encode
 
 main = do
   o <- getOptions
@@ -24,6 +21,9 @@ main = do
                       Just "-" -> L.getContents
                       Just x -> L.readFile x
   parsed <- parseLazyByteString value <$> instream
+  let postprocess = if flatArg o
+                       then printFlat . flattenJson
+                       else pprint
   case parsed of
-    [p] -> mapM_ pprint (project (exprArg o) p)
+    [p] -> postprocess (filterJsonWithGlob (exprArg o) p)
     _ -> error "Failed to parse JSON"

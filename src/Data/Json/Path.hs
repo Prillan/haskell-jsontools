@@ -7,7 +7,8 @@ module Data.Json.Path (Path,
                        readPath,
                        GlobPath,
                        readGlobPath,
-                       matches) where
+                       matches,
+                       depth) where
 
 import JPrelude
 
@@ -26,7 +27,7 @@ data PathElement = Property Text | Index Integer
 newtype Path = Path [PathElement]
   deriving (Show, Monoid)
 
-data GlobPathElement = GPEStar | GPEChoice [GlobPath]  | GPE PathElement
+data GlobPathElement = GPEStar | GPEDoubleStar | GPEChoice [GlobPath]  | GPE PathElement
   deriving Show
 newtype GlobPath = GlobPath [GlobPathElement]
   deriving Show
@@ -39,6 +40,9 @@ test x =
       print (gpToText <$> parsed)
       mapM_ (mapM_ (putStrLn.T.unpack)) (map gpToText . flatten <$> parsed)
 
+depth :: Num i => Path -> i
+depth = genericLength . (coerce :: Path -> [PathElement])
+
 matches :: Path -> GlobPath -> Bool
 matches p gp = any (matches' p') gps
   where p' = coerce p :: [PathElement]
@@ -46,12 +50,16 @@ matches p gp = any (matches' p') gps
         matches' :: [PathElement] -> [GlobPathElement] -> Bool
         matches' [] [] = True
         matches' [] _  = False
-        matches' _  [] = True
+        matches' _  [] = False
+        matches' _  [GPEDoubleStar] = True
         matches' (x:xs) ((GPE y):ys) = if x == y then matches' xs ys else False
         matches' (x:xs) (GPEStar:ys) = matches' xs ys
+        matches' (x:xs) (GPEDoubleStar:ys) =  matches' xs ys
+                                           || matches' xs (GPEDoubleStar:ys)
 
 gpeToText :: GlobPathElement -> Text
 gpeToText GPEStar = ".*"
+gpeToText GPEDoubleStar = ".**"
 gpeToText (GPEChoice paths) = "{" <> T.intercalate "," (map gpToText paths) <> "}"
 gpeToText (GPE elem) = peToText elem
 gpToText (GlobPath xs) = T.concat (map gpeToText xs)
@@ -98,11 +106,13 @@ readGlobPath :: String -> Either ParseError GlobPath
 readGlobPath = parse (path <* eof) ""
   where
         path = GlobPath <$> (many element)
-        element = try (string ".*" *> pure GPEStar)
-                <|> try (GPEChoice <$> between (char '{') (char '}') (sepBy1 path (char ',')))
-                <|> try (GPE <$> prop_good)
-                <|> try (GPE <$> try prop)
-                <|> try (GPE <$> index')
+        element = choice $ map try
+          [ string ".**" *> pure GPEDoubleStar
+          , string ".*" *> pure GPEStar
+          , GPEChoice <$> between (char '{') (char '}') (sepBy1 path (char ','))
+          , (GPE <$> prop_good)
+          , (GPE <$> try prop)
+          , (GPE <$> index')]
         propname_good = T.pack <$> (many1 . oneOf $ good)
         prop_good = Property <$> (char '.' *> propname_good)
         prop = Property . T.pack <$> between (char '[') (char ']') (p_string)
