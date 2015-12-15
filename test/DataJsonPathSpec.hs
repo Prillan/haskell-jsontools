@@ -25,7 +25,11 @@ matchings = [ ".player.name" /~ ".player.*.money"
             , ".player.name" ~~ ".player.*"
             , ".player.state.health" ~~ ".**.health"
             , ".player.money" /~ ".**.health"
-            , "[0].asdf" ~~ ".*.asdf"]
+            , "[0].asdf" ~~ ".*.asdf"
+            , "[0]" ~~ "[0]"
+            , "[0]" /~ "[1]"
+            , "[0].asdf" /~ "[2].asdf"
+            , ".subtournaments[0].groups[0].teams[5].resource" /~ ".subtournaments[2].groups[0].**"]
 
 readJsonFile :: String -> IO [Value]
 readJsonFile f = parseLazyByteString value <$> L.readFile f
