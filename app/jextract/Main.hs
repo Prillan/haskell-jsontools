@@ -2,17 +2,14 @@
 import JPrelude
 import Data.Json
 import Data.Json.Path
-import Data.Json.Pretty
+import Data.Json.Pretty (pretty)
 
 import Options
 
 import qualified Data.ByteString.Lazy as L
 import qualified Data.Text as T
 
---printFlat :: [(Path, Primitive)]
 printFlat = mapM_ (putStrLn.T.unpack.pretty)
-
-pprint = L.putStrLn . encode
 
 main = do
   o <- getOptions
@@ -21,9 +18,10 @@ main = do
                       Just "-" -> L.getContents
                       Just x -> L.readFile x
   parsed <- parseLazyByteString value <$> instream
-  let postprocess = if flatArg o
-                       then printFlat . flattenJson
-                       else pprint
+  let postprocess = case (flatArg o, prettyArg o) of
+                      (_, True) -> L.putStrLn . encodePretty
+                      (True, _) -> printFlat . flattenJson
+                      (_, _)    -> L.putStrLn . encode
   case parsed of
     [p] -> postprocess (filterJsonWithGlob (exprArg o) p)
     _ -> error "Failed to parse JSON"
