@@ -19,7 +19,17 @@ instance Pretty (Path, String) where
 instance Pretty (Path, Text) where
   pretty (p, t) = pretty p <> ": " <> t
 instance Pretty (Path, Primitive) where
-  pretty (p, StringPrim x) = pretty (p, x)
+  pretty (p, StringPrim x) = pretty (p, show x)
   pretty (p, NumberPrim n) = pretty (p, show n)
   pretty (p, BoolPrim b) = pretty (p, if b then "true" :: Text else "false")
   pretty (p, NullPrim) = pretty (p, "null" :: Text)
+
+
+tshow :: Show a => a -> Text
+tshow = pack.show
+
+instance Pretty Primitive where
+  pretty (StringPrim x) = tshow x
+  pretty (NumberPrim x) = tshow x
+  pretty (BoolPrim x) = if x then "true" else "false"
+  pretty (NullPrim) = "null"
