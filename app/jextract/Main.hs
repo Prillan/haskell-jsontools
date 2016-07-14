@@ -2,7 +2,7 @@
 import JPrelude
 import Data.Json
 import Data.Json.Path
-import Data.Json.Pretty (pretty)
+import Data.Json.Pretty (pretty, prettyRaw)
 
 import Options
 
@@ -10,7 +10,7 @@ import qualified Data.ByteString.Lazy as L
 import qualified Data.Text as T
 
 printFlat = mapM_ (putStrLn.T.unpack.pretty)
-printValues x = mapM_ (putStrLn.T.unpack.pretty) (x ^.. deep _Primitive)
+printValues x = mapM_ (putStrLn.T.unpack.prettyRaw) (x ^.. deep _Primitive)
 
 main = do
   o <- getOptions

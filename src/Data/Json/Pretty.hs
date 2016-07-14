@@ -33,3 +33,13 @@ instance Pretty Primitive where
   pretty (NumberPrim x) = tshow x
   pretty (BoolPrim x) = if x then "true" else "false"
   pretty (NullPrim) = "null"
+
+
+class PrettyRaw a where
+  prettyRaw :: a -> Text
+
+instance PrettyRaw Primitive where
+  prettyRaw (StringPrim x) = x
+  prettyRaw (NumberPrim x) = tshow x
+  prettyRaw (BoolPrim x) = if x then "true" else "false"
+  prettyRaw (NullPrim) = "null"
