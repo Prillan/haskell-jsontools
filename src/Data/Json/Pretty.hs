@@ -7,6 +7,7 @@ import Data.Json.Path
 
 import Data.Aeson.Lens
 import Data.Text (Text, pack)
+import Data.Scientific (Scientific(..))
 
 class Pretty a where
   pretty :: a -> Text
@@ -30,7 +31,9 @@ tshow = pack.show
 
 instance Pretty Primitive where
   pretty (StringPrim x) = tshow x
-  pretty (NumberPrim x) = tshow x
+  pretty (NumberPrim x)
+    | base10Exponent x >= 0 = tshow $ (coefficient x) * 10 ^ (base10Exponent x)
+    | otherwise             = tshow $ x
   pretty (BoolPrim x) = if x then "true" else "false"
   pretty (NullPrim) = "null"
 
@@ -40,6 +43,4 @@ class PrettyRaw a where
 
 instance PrettyRaw Primitive where
   prettyRaw (StringPrim x) = x
-  prettyRaw (NumberPrim x) = tshow x
-  prettyRaw (BoolPrim x) = if x then "true" else "false"
-  prettyRaw (NullPrim) = "null"
+  prettyRaw x = pretty x
