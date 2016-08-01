@@ -2,6 +2,7 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 module Data.Json.Path (Path,
                        toText,
+                       rfc6901pointer,
                        property,
                        index,
                        readPath,
@@ -90,6 +91,15 @@ isGood t
   | otherwise = T.head t `elem` (['A'..'Z'] ++ ['a'..'z'])
               && T.all (`elem` good) (T.tail t)
 
+rfc6901pointer :: Path -> Text
+rfc6901pointer (Path xs) = T.concat (map (("/" <>) . escape . go) xs)
+  where go (Property t) = t
+        go (Index i) = tshow i
+        escape = T.concatMap escapeChar
+        escapeChar '~' = "~0"
+        escapeChar '/' = "~1"
+        escapeChar x   = T.pack [x]
+
 readPath :: String -> Either ParseError Path
 readPath = parse path ""
   where
@@ -117,3 +127,4 @@ readGlobPath = parse (path <* eof) ""
         prop_good = Property <$> (char '.' *> propname_good)
         prop = Property . T.pack <$> between (char '[') (char ']') (p_string)
         index' = Index . read <$> between (char '[') (char ']') (many1 digit)
+

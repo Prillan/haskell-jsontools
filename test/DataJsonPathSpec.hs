@@ -31,6 +31,12 @@ matchings = [ ".player.name" /~ ".player.*.money"
             , "[0].asdf" /~ "[2].asdf"
             , ".subtournaments[0].groups[0].teams[5].resource" /~ ".subtournaments[2].groups[0].**"]
 
+rfc6901examples = [ ".foo[0]" ~~ "/foo/0"
+                  , "[\"~\"]" ~~ "/~0"
+                  , "[\"/~\"]" ~~ "/~1~0"
+                  , "[0][1]" /~ "/~0/~1"
+                  ]
+
 readJsonFile :: String -> IO [Value]
 readJsonFile f = parseLazyByteString value <$> L.readFile f
 
@@ -59,6 +65,10 @@ spec = do
        filterJsonWithGlob everything data' `shouldBe` data'
        let Right pGlob = readGlobPath ".provider.**"
        filterJsonWithGlob pGlob data' `shouldBe` provider
+
+     it "RFC6901" $ do
+       forM_ rfc6901examples $ \(p, q, b) -> do
+         (rfc6901pointer <$> readPath p) `shouldSatisfy` ((if b then id else not) . (Right (T.pack q) ==))
 
 
 -- Target json objects

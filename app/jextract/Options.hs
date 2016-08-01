@@ -7,6 +7,7 @@ data Options = Options { exprArg :: GlobPath
                        , flatArg :: Bool
                        , prettyArg :: Bool
                        , valuesArg :: Bool
+                       , useJsonPointer :: Bool
                        , fileArg :: Maybe String }
 
 getOptions :: IO Options
@@ -18,6 +19,7 @@ opts = info (helper <*> opts') fullDesc
                         <*> switch (short 'f' <> long "flat" <> help "Flatten result")
                         <*> switch (short 'p' <> long "pretty-print" <> help "Pretty print result")
                         <*> switch (short 'v' <> long "values-only" <> help "Output just values")
+                        <*> (switch (long "use-json-pointer" <> help "Use RFC6901 Json Pointers for output. (Only affects -f)"))
                         <*> optional (argument str (metavar "FILE" <> help "Input file"))
         glob = do
           s <- readGlobPath <$> str

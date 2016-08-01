@@ -9,7 +9,7 @@ import Options
 import Data.Array ((!))
 import qualified Data.HashMap.Strict as H
 import qualified Data.ByteString.Lazy as B
-import Data.Text (unpack)
+import Data.Text (Text, unpack)
 import System.Console.ANSI
 import Text.Regex.TDFA
 
@@ -38,9 +38,9 @@ findMatches r = findMatches' mempty
 printColored :: Color -> String -> IO ()
 printColored c s = setSGR [SetColor Foreground Vivid c] >> putStr s >> setSGR [Reset]
 
-printMatch :: Match -> IO ()
-printMatch (Match p v (s, c)) = do
-  printColored Magenta (unpack $ toText p)
+printMatch :: (Path -> Text) -> Match -> IO ()
+printMatch printer (Match p v (s, c)) = do
+  printColored Magenta (unpack $ printer p)
   putStr ": "
   putStr (take s v)
   printColored Green (take c $ drop s v)
@@ -54,4 +54,7 @@ main = do
    let matches = concatMap (findMatches (regexArg o)) result
    if verboseArg o then print matches else pure ()
 
-   mapM_ printMatch matches
+   let printer = if useJsonPointer o
+                    then rfc6901pointer
+                    else toText
+   mapM_ (printMatch printer) matches
