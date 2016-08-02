@@ -1,6 +1,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 module Data.Json.Path (Path,
+                       PathElement (..),
                        toText,
                        rfc6901pointer,
                        property,
