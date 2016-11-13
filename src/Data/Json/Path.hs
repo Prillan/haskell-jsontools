@@ -2,6 +2,7 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 module Data.Json.Path (Path,
                        PathElement (..),
+                       fromList,
                        toText,
                        rfc6901pointer,
                        property,
@@ -77,6 +78,7 @@ flatten' (x:xs) = ([x] ++) <$> (flatten' xs)
 singleton pe = Path [pe]
 property t = singleton (Property t)
 index i = singleton (Index i)
+fromList = Path
 
 peToText (Property t)
   | isGood t = "." <> t
