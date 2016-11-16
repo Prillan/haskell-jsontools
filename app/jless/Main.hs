@@ -15,14 +15,17 @@ import qualified Data.ByteString.Lazy as L
 import qualified Data.Text as T
 import System.IO
 
+fromStdin = do
+  fakeStdin <- openFile "/dev/stdin" ReadMode
+  s <- S.hGetContents fakeStdin
+  _ <- reopenStdin
+  pure (L.fromStrict s)
+
 main = getOptions >>= \opts -> do
   stream <- case fileArg opts of
-              "-" -> do
-                fakeStdin <- openFile "/dev/stdin" ReadMode
-                s <- S.hGetContents fakeStdin
-                _ <- reopenStdin
-                pure (L.fromStrict s)
-              f   -> L.readFile f
+              Nothing -> fromStdin
+              Just "-" -> fromStdin
+              Just f   -> L.readFile f
   case decode stream :: Maybe J of
     Just o -> runProgram o *> pure ()
     Nothing -> putStrLn "Invalid JSON"
